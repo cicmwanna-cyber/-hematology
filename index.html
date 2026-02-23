@@ -3,298 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hemato-master | Clinical Simulation</title>
+    <title>Hemato-master | Ultimate Edition</title>
     <style>
         :root {
-            --neon-blue: #00f2fe;
-            --neon-green: #00ff88;
-            --neon-red: #ff4b2b;
-            --bg-dark: #080c14;
-            --glass: rgba(255, 255, 255, 0.05);
+            --intern: #00ff88; --resident: #00f2fe; --attending: #ff4b2b;
+            --bg: #0b0e14; --card: #161b22; --text: #f0f6fc;
         }
-
         body {
-            background: var(--bg-dark);
-            color: #fff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
         }
-
-        #dashboard {
-            width: 90%;
-            max-width: 550px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 40px;
-            box-shadow: 0 0 50px rgba(0, 242, 254, 0.1);
-            text-align: center;
-            position: relative;
+        #app-container {
+            width: 90%; max-width: 550px; background: var(--card); padding: 35px;
+            border-radius: 28px; border: 1px solid #30363d; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            text-align: center; position: relative;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            letter-spacing: -1px;
-            background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0 0 10px 0;
+        h1 { font-size: 2.2rem; margin: 0; background: linear-gradient(90deg, var(--intern), var(--resident)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .lvl-card {
+            background: rgba(255,255,255,0.03); border: 1px solid #30363d; padding: 18px;
+            margin: 12px 0; border-radius: 16px; cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .level-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 50px;
-            background: rgba(0, 242, 254, 0.2);
-            color: var(--neon-blue);
-            font-weight: bold;
-            font-size: 0.8rem;
-            margin-bottom: 20px;
+        .lvl-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.08); border-color: gray; }
+        #timer-bar { width: 100%; height: 6px; background: #21262d; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        #timer-fill { height: 100%; width: 100%; background: var(--resident); transition: width 0.1s linear; }
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .btn {
+            padding: 14px; border-radius: 12px; border: 1px solid #30363d;
+            background: #21262d; color: white; cursor: pointer; font-weight: 600; transition: 0.2s;
         }
-
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-
-        #progress-bar {
-            width: 100%;
-            height: 100%;
-            background: var(--neon-blue);
-            transition: width 0.1s linear;
-        }
-
-        .stats-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-
-        .question-area {
-            font-size: 1.3rem;
-            min-height: 90px;
-            line-height: 1.4;
-            margin-bottom: 30px;
-        }
-
-        .btn-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        button {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 18px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        button:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--neon-blue);
-            transform: scale(1.03);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
-        }
-
-        input {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid #333;
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            width: 100%;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-
+        .btn:hover { background: #30363d; border-color: var(--resident); }
         .hidden { display: none; }
+        input { background: #0d1117; border: 1px solid #30363d; color: white; padding: 12px; border-radius: 8px; width: 80%; margin: 20px 0; text-align: center; }
+        .streak-badge { color: #f2e000; font-weight: bold; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-<div id="dashboard">
-    <div id="screen-start">
+<div id="app-container">
+    <div id="scr-start">
         <h1>Hemato-master</h1>
-        <p style="color: #888; margin-bottom: 30px;">ADVANCED CLINICAL HEMATOLOGY ENGINE</p>
-        <input type="text" id="username" placeholder="Enter Clinician Name...">
-        <button onclick="startGame()" style="width: 100%; background: linear-gradient(to right, var(--neon-blue), var(--neon-green)); color: #000; font-weight: bold; border: none;">INITIALIZE SESSION</button>
-    </div>
-
-    <div id="screen-game" class="hidden">
-        <div class="stats-row">
-            <span id="player-disp">DR. UNKNOWN</span>
-            <span>SCORE: <span id="score-disp" style="color: var(--neon-green)">0</span></span>
+        <p style="color: #8b949e;">Select Clinical Difficulty</p>
+        <input type="text" id="p-name" placeholder="Clinician Name">
+        
+        <div class="lvl-card" onclick="init('intern')" style="border-left: 5px solid var(--intern)">
+            <div style="text-align:left;"><strong>INTERN</strong><br><small>Morphology & Basics</small></div>
+            <span style="color: var(--intern)">15s</span>
         </div>
-        <div class="level-badge" id="level-disp">LEVEL 1: INTERN</div>
-        <div class="progress-container"><div id="progress-bar"></div></div>
-        <div class="question-area" id="q-text">Ready for analysis?</div>
-        <div class="btn-grid" id="ans-grid"></div>
+        <div class="lvl-card" onclick="init('resident')" style="border-left: 5px solid var(--resident)">
+            <div style="text-align:left;"><strong>RESIDENT</strong><br><small>Pathophysiology</small></div>
+            <span style="color: var(--resident)">10s</span>
+        </div>
+        <div class="lvl-card" onclick="init('attending')" style="border-left: 5px solid var(--attending)">
+            <div style="text-align:left;"><strong>ATTENDING</strong><br><small>Crisis Diagnostics</small></div>
+            <span style="color: var(--attending)">5s</span>
+        </div>
     </div>
 
-    <div id="screen-end" class="hidden">
-        <h2 id="end-status" style="font-size: 2rem;">SHIFT COMPLETE</h2>
-        <div style="font-size: 4rem; margin: 10px 0; font-weight: bold;" id="final-score">0</div>
-        <p style="color: #888">Diagnostic accuracy saved to local history.</p>
-        <button onclick="location.reload()" style="width: 100%; border-color: var(--neon-green)">NEW SESSION</button>
+    <div id="scr-quiz" class="hidden">
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#8b949e;">
+            <span id="disp-name">DR.</span>
+            <span id="disp-streak" class="streak-badge"></span>
+            <span>SCORE: <span id="disp-score" style="color:white">0</span></span>
+        </div>
+        <div id="timer-bar"><div id="timer-fill"></div></div>
+        <h3 id="q-text" style="min-height: 70px; line-height: 1.4;"></h3>
+        <div id="ans-grid" class="opt-grid"></div>
+    </div>
+
+    <div id="scr-end" class="hidden">
+        <h2 id="status-text">Shift Completed</h2>
+        <div style="font-size: 3.5rem; margin: 20px 0; font-weight: 800;" id="final-score">0</div>
+        <button class="btn" style="width:100%" onclick="location.reload()">REBOOT SYSTEM</button>
     </div>
 </div>
 
 <script>
-    // --- EXCITING SOUND ENGINE ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playCorrect() {
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = 'square';
-        o.frequency.setValueAtTime(400, audioCtx.currentTime);
-        o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
-        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + 0.2);
+    const audio = new (window.AudioContext || window.webkitAudioContext)();
+    function beep(f, type='sine', d=0.2, v=0.1) {
+        const o = audio.createOscillator(); const g = audio.createGain();
+        o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, audio.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + d);
+        o.connect(g); g.connect(audio.destination); o.start(); o.stop(audio.currentTime + d);
     }
 
-    function playWrong() {
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = 'sawtooth';
-        o.frequency.setValueAtTime(200, audioCtx.currentTime);
-        o.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + 0.3);
-    }
-
-    function playTick() {
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = 'sine';
-        o.frequency.setValueAtTime(1200, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + 0.05);
-    }
-
-    // --- GAME DATA ---
-    const levels = [
-        {
-            name: "LEVEL 1: INTERN", timer: 150, points: 100,
-            questions: [
-                {q: "Patient has 'spoon-shaped' nails and craves ice. What's the diagnosis?", a: 0, o: ["Iron Deficiency", "B12 Deficiency", "Sickle Cell", "G6PD"]},
-                {q: "Small, pale RBCs (Microcytic Hypochromic) are typical of:", a: 1, o: ["Folate Deficiency", "Iron Deficiency", "Liver Disease", "Hemolysis"]}
-            ]
-        },
-        {
-            name: "LEVEL 2: RESIDENT", timer: 100, points: 250,
-            questions: [
-                {q: "Which hormone produced by the liver regulates iron absorption?", a: 2, o: ["Erythropoietin", "Ferritin", "Hepcidin", "Transferrin"]},
-                {q: "Hypersegmented neutrophils (6+ lobes) indicate:", a: 0, o: ["Megaloblastic Anemia", "Iron Deficiency", "Infection only", "Aplastic Anemia"]}
-            ]
-        },
-        {
-            name: "LEVEL 3: ATTENDING", timer: 60, points: 500,
-            questions: [
-                {q: "A 'Dry Tap' on bone marrow biopsy often indicates:", a: 3, o: ["Iron Def.", "Acute Bleed", "SCA", "Aplastic Anemia"]},
-                {q: "Bite cells and Heinz bodies are pathognomonic for:", a: 1, o: ["PNH", "G6PD Deficiency", "Hereditary Spherocytosis", "B12 Def."]}
-            ]
-        }
+    const bank = [
+        { q: "Spoon-shaped nails (Koilonychia) + Pica?", a: "Iron Deficiency", o: ["Iron Deficiency", "B12 Def.", "Folate Def.", "Lead"] },
+        { q: "Which hormone regulates iron by degrading ferroportin?", a: "Hepcidin", o: ["EPO", "Hepcidin", "Ferritin", "Albumin"] },
+        { q: "Hypersegmented neutrophils (6+ lobes) indicate:", a: "B12/Folate Def.", o: ["Iron Def.", "B12/Folate Def.", "Infection", "SCA"] },
+        { q: "Bite cells & Heinz bodies appear after oxidative stress in:", a: "G6PD Deficiency", o: ["Spherocytosis", "G6PD Deficiency", "Thalassemia", "PNH"] },
+        { q: "Which anemia presents with a 'Crew-cut' skull X-ray?", a: "Thalassemia Major", o: ["Thalassemia Major", "B12 Def.", "Iron Def.", "Aplastic"] },
+        { q: "The primary iron storage protein is called:", a: "Ferritin", o: ["Transferrin", "Ferritin", "Hepcidin", "Myoglobin"] },
+        { q: "Schistocytes on a blood smear are a hallmark of:", a: "MAHA/TTP", o: ["Lead Poisoning", "MAHA/TTP", "B12 Def.", "SCA"] },
+        { q: "Basophilic stippling is seen in Thalassemia and:", a: "Lead Poisoning", o: ["B12 Def.", "Iron Def.", "Lead Poisoning", "G6PD"] },
+        { q: "RBCs with a bullseye appearance are known as:", a: "Target Cells", o: ["Spherocytes", "Target Cells", "Sickle Cells", "Bite Cells"] },
+        { q: "A 'Dry Tap' bone marrow biopsy is classic for:", a: "Myelofibrosis", o: ["Iron Def.", "Myelofibrosis", "B12 Def.", "Sickle Cell"] }
     ];
 
-    let state = { level: 0, qIdx: 0, score: 0, time: 100, timer: null };
+    let state = { score: 0, streak: 0, current: 0, qs: [], timer: null, timeVal: 100, speed: 1, mode:'' };
 
-    function startGame() {
-        document.getElementById('player-disp').innerText = "DR. " + (document.getElementById('username').value || "ANONYMOUS").toUpperCase();
-        document.getElementById('screen-start').classList.add('hidden');
-        document.getElementById('screen-game').classList.remove('hidden');
-        loadQuestion();
+    function init(m) {
+        state.mode = m;
+        state.name = document.getElementById('p-name').value || "MD GUEST";
+        state.qs = bank.sort(() => Math.random() - 0.5).slice(0, 8);
+        state.speed = m === 'intern' ? 0.6 : m === 'resident' ? 1.2 : 2.5;
+        
+        document.getElementById('scr-start').classList.add('hidden');
+        document.getElementById('scr-quiz').classList.remove('hidden');
+        document.getElementById('disp-name').innerText = "DR. " + state.name.toUpperCase();
+        document.getElementById('timer-fill').style.background = m === 'intern' ? 'var(--intern)' : m === 'resident' ? 'var(--resident)' : 'var(--attending)';
+        loadQ();
     }
 
-    function loadQuestion() {
-        const levelData = levels[state.level];
-        const qData = levelData.questions[state.qIdx];
-        
-        document.getElementById('level-disp').innerText = levelData.name;
-        document.getElementById('q-text').innerText = qData.q;
-        
-        const grid = document.getElementById('ans-grid');
-        grid.innerHTML = '';
-        qData.o.forEach((opt, i) => {
-            const b = document.createElement('button');
-            b.innerText = opt;
-            b.onclick = () => check(i);
-            grid.appendChild(b);
+    function loadQ() {
+        if(state.current >= state.qs.length) return end("COMMENDATION EARNED");
+        const q = state.qs[state.current];
+        document.getElementById('q-text').innerText = q.q;
+        const grid = document.getElementById('ans-grid'); grid.innerHTML = '';
+        q.o.sort(() => Math.random() - 0.5).forEach(opt => {
+            const b = document.createElement('button'); b.className = 'btn';
+            b.innerText = opt; b.onclick = () => check(opt); grid.appendChild(b);
         });
-        
-        startTimer();
+        startClock();
     }
 
-    function startTimer() {
-        state.time = 100;
-        clearInterval(state.timer);
-        const speed = levels[state.level].timer / 100; 
+    function startClock() {
+        state.timeVal = 100; clearInterval(state.timer);
         state.timer = setInterval(() => {
-            state.time -= 1;
-            document.getElementById('progress-bar').style.width = state.time + "%";
-            if(state.time < 30) {
-                document.getElementById('progress-bar').style.background = "var(--neon-red)";
-                playTick();
-            } else {
-                document.getElementById('progress-bar').style.background = "var(--neon-blue)";
-            }
-            if(state.time <= 0) {
-                playWrong();
-                nextQuestion();
-            }
-        }, levels[state.level].timer);
+            state.timeVal -= state.speed;
+            document.getElementById('timer-fill').style.width = state.timeVal + "%";
+            if(state.timeVal < 30) beep(1200, 'sine', 0.05, 0.03); 
+            if(state.timeVal <= 0) { beep(100, 'sawtooth', 0.5); next(); }
+        }, 100);
     }
 
-    function check(idx) {
+    function check(choice) {
         clearInterval(state.timer);
-        if(idx === levels[state.level].questions[state.qIdx].a) {
-            playCorrect();
-            state.score += levels[state.level].points;
-            document.getElementById('score-disp').innerText = state.score;
+        if(choice === state.qs[state.current].a) {
+            beep(800, 'sine', 0.2);
+            state.streak++;
+            state.score += Math.floor(state.timeVal * (1 + state.streak * 0.1));
+            document.getElementById('disp-score').innerText = state.score;
+            document.getElementById('disp-streak').innerText = state.streak > 1 ? `🔥 ${state.streak} STREAK` : "";
         } else {
-            playWrong();
+            beep(150, 'sawtooth', 0.3);
+            state.streak = 0;
+            document.getElementById('disp-streak').innerText = "";
+            if(state.mode === 'attending') return end("MALPRACTICE TERMINATION");
         }
-        nextQuestion();
+        next();
     }
 
-    function nextQuestion() {
-        state.qIdx++;
-        if(state.qIdx >= levels[state.level].questions.length) {
-            state.level++;
-            state.qIdx = 0;
-        }
-        
-        if(state.level >= levels.length) {
-            endGame();
-        } else {
-            loadQuestion();
-        }
+    function next() {
+        state.current++; loadQ();
     }
 
-    function endGame() {
-        document.getElementById('screen-game').classList.add('hidden');
-        document.getElementById('screen-end').classList.remove('hidden');
+    function end(msg) {
+        clearInterval(state.timer);
+        document.getElementById('scr-quiz').classList.add('hidden');
+        document.getElementById('scr-end').classList.remove('hidden');
+        document.getElementById('status-text').innerText = msg;
         document.getElementById('final-score').innerText = state.score;
     }
 </script>
