@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hemato-Master | Clinical Dashboard</title>
+    <title>Hemato-master | Clinical Simulation</title>
     <style>
         :root {
-            --primary: #00f2fe;
-            --secondary: #4facfe;
-            --accent: #f093fb;
-            --danger: #ff4b2b;
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
+            --neon-blue: #00f2fe;
+            --neon-green: #00ff88;
+            --neon-red: #ff4b2b;
+            --bg-dark: #080c14;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         body {
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            color: #f8fafc;
-            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -26,234 +25,276 @@
             overflow: hidden;
         }
 
-        #app {
+        #dashboard {
             width: 90%;
-            max-width: 500px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
+            max-width: 550px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
+            border-radius: 30px;
             padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 50px rgba(0, 242, 254, 0.1);
             text-align: center;
-            transition: all 0.3s ease;
+            position: relative;
         }
 
         h1 {
-            font-size: 2rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin: 0 0 10px 0;
         }
 
-        .status-header {
+        .level-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 50px;
+            background: rgba(0, 242, 254, 0.2);
+            color: var(--neon-blue);
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--neon-blue);
+            transition: width 0.1s linear;
+        }
+
+        .stats-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: #aaa;
         }
 
-        .health-container {
-            width: 100%;
-            height: 6px;
-            background: #334155;
-            border-radius: 10px;
+        .question-area {
+            font-size: 1.3rem;
+            min-height: 90px;
+            line-height: 1.4;
             margin-bottom: 30px;
-            overflow: hidden;
-        }
-
-        #health-bar {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, #00f2fe, #4facfe);
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .question-text {
-            font-size: 1.25rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            min-height: 80px;
         }
 
         .btn-grid {
             display: grid;
-            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         button {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 18px;
+            border-radius: 15px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.2s;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         button:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-blue);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
         }
 
         input {
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #333;
             color: white;
-            padding: 14px;
+            padding: 15px;
             border-radius: 12px;
             width: 100%;
-            box-sizing: border-box;
             margin-bottom: 20px;
-            outline: none;
-        }
-
-        #timer-ring {
-            width: 100%;
-            height: 4px;
-            background: #334155;
-            margin-bottom: 10px;
-        }
-
-        #timer-progress {
-            height: 100%;
-            background: var(--accent);
-            width: 100%;
+            box-sizing: border-box;
+            font-size: 1rem;
         }
 
         .hidden { display: none; }
-
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: rgba(79, 172, 254, 0.2);
-            color: var(--secondary);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
     </style>
 </head>
 <body>
 
-<div id="app">
+<div id="dashboard">
     <div id="screen-start">
-        <h1>Heme-Master</h1>
-        <p style="color: #94a3b8; margin-bottom: 30px;">Professional Hematology Training</p>
-        <input type="text" id="p-name" placeholder="Enter Clinician Name">
-        <div class="btn-grid">
-            <button onclick="init('practice')" style="border-left: 4px solid var(--primary)">Training Mode</button>
-            <button onclick="init('death')" style="border-left: 4px solid var(--danger)">Emergency Mode</button>
-        </div>
+        <h1>Hemato-master</h1>
+        <p style="color: #888; margin-bottom: 30px;">ADVANCED CLINICAL HEMATOLOGY ENGINE</p>
+        <input type="text" id="username" placeholder="Enter Clinician Name...">
+        <button onclick="startGame()" style="width: 100%; background: linear-gradient(to right, var(--neon-blue), var(--neon-green)); color: #000; font-weight: bold; border: none;">INITIALIZE SESSION</button>
     </div>
 
     <div id="screen-game" class="hidden">
-        <div class="status-header">
-            <span id="name-tag">DR. NAME</span>
-            <span class="badge" id="mode-tag">MODE</span>
-            <span>PTS: <span id="score-val">0</span></span>
+        <div class="stats-row">
+            <span id="player-disp">DR. UNKNOWN</span>
+            <span>SCORE: <span id="score-disp" style="color: var(--neon-green)">0</span></span>
         </div>
-        <div class="health-container"><div id="health-bar"></div></div>
-        <div id="timer-ring"><div id="timer-progress"></div></div>
-        <div class="question-text" id="q-body">Analyze patient sample...</div>
+        <div class="level-badge" id="level-disp">LEVEL 1: INTERN</div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div class="question-area" id="q-text">Ready for analysis?</div>
         <div class="btn-grid" id="ans-grid"></div>
     </div>
 
     <div id="screen-end" class="hidden">
-        <h2 id="final-msg" style="font-size: 2rem;">Analysis Complete</h2>
-        <div style="font-size: 3rem; margin: 20px 0;" id="final-score">0</div>
-        <p style="color: #94a3b8">Diagnostic accuracy archived.</p>
-        <button onclick="location.reload()" style="width: 100%; background: var(--primary); color: #000;">New Session</button>
+        <h2 id="end-status" style="font-size: 2rem;">SHIFT COMPLETE</h2>
+        <div style="font-size: 4rem; margin: 10px 0; font-weight: bold;" id="final-score">0</div>
+        <p style="color: #888">Diagnostic accuracy saved to local history.</p>
+        <button onclick="location.reload()" style="width: 100%; border-color: var(--neon-green)">NEW SESSION</button>
     </div>
 </div>
 
 <script>
+    // --- EXCITING SOUND ENGINE ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function sound(f, d, v=0.1) {
+    
+    function playCorrect() {
         const o = audioCtx.createOscillator();
         const g = audioCtx.createGain();
-        o.type = 'sine'; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-        g.gain.setValueAtTime(v, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d);
+        o.type = 'square';
+        o.frequency.setValueAtTime(400, audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + d);
+        o.start(); o.stop(audioCtx.currentTime + 0.2);
     }
 
-    const pool = [
-        {q:"A patient has spoon-shaped nails and craves ice. What's the finding?", a:0, o:["Iron Deficiency","Vitamin B12 Def.","Folate Def.","Hemolysis"]},
-        {q:"Hypersegmented neutrophils are most commonly seen in:", a:2, o:["Iron Deficiency","Acute Blood Loss","Megaloblastic Anemia","G6PD Def."]},
-        {q:"Bite cells on a blood smear are a classic sign of:", a:3, o:["SCA","Spherocytosis","Thalassemia","G6PD Deficiency"]},
-        {q:"Which hormone is the master regulator of iron absorption?", a:1, o:["Erythropoietin","Hepcidin","Transferrin","Ferritin"]},
-        {q:"The 'Coombs Test' is primarily used to diagnose:", a:2, o:["Iron loss","DNA defects","Immune Hemolysis","Lead poisoning"]}
+    function playWrong() {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(200, audioCtx.currentTime);
+        o.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function playTick() {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // --- GAME DATA ---
+    const levels = [
+        {
+            name: "LEVEL 1: INTERN", timer: 150, points: 100,
+            questions: [
+                {q: "Patient has 'spoon-shaped' nails and craves ice. What's the diagnosis?", a: 0, o: ["Iron Deficiency", "B12 Deficiency", "Sickle Cell", "G6PD"]},
+                {q: "Small, pale RBCs (Microcytic Hypochromic) are typical of:", a: 1, o: ["Folate Deficiency", "Iron Deficiency", "Liver Disease", "Hemolysis"]}
+            ]
+        },
+        {
+            name: "LEVEL 2: RESIDENT", timer: 100, points: 250,
+            questions: [
+                {q: "Which hormone produced by the liver regulates iron absorption?", a: 2, o: ["Erythropoietin", "Ferritin", "Hepcidin", "Transferrin"]},
+                {q: "Hypersegmented neutrophils (6+ lobes) indicate:", a: 0, o: ["Megaloblastic Anemia", "Iron Deficiency", "Infection only", "Aplastic Anemia"]}
+            ]
+        },
+        {
+            name: "LEVEL 3: ATTENDING", timer: 60, points: 500,
+            questions: [
+                {q: "A 'Dry Tap' on bone marrow biopsy often indicates:", a: 3, o: ["Iron Def.", "Acute Bleed", "SCA", "Aplastic Anemia"]},
+                {q: "Bite cells and Heinz bodies are pathognomonic for:", a: 1, o: ["PNH", "G6PD Deficiency", "Hereditary Spherocytosis", "B12 Def."]}
+            ]
+        }
     ];
 
-    let state = { score:0, lives:100, current:0, timer:null, mode:'' };
+    let state = { level: 0, qIdx: 0, score: 0, time: 100, timer: null };
 
-    function init(m) {
-        state.mode = m;
-        document.getElementById('name-tag').innerText = document.getElementById('p-name').value || "MD GUEST";
-        document.getElementById('mode-tag').innerText = m;
+    function startGame() {
+        document.getElementById('player-disp').innerText = "DR. " + (document.getElementById('username').value || "ANONYMOUS").toUpperCase();
         document.getElementById('screen-start').classList.add('hidden');
         document.getElementById('screen-game').classList.remove('hidden');
-        load();
+        loadQuestion();
     }
 
-    function load() {
-        if(state.current >= pool.length) return end("EXCELLENT WORK");
-        const q = pool[state.current];
-        document.getElementById('q-body').innerText = q.q;
+    function loadQuestion() {
+        const levelData = levels[state.level];
+        const qData = levelData.questions[state.qIdx];
+        
+        document.getElementById('level-disp').innerText = levelData.name;
+        document.getElementById('q-text').innerText = qData.q;
+        
         const grid = document.getElementById('ans-grid');
         grid.innerHTML = '';
-        q.o.forEach((opt, i) => {
+        qData.o.forEach((opt, i) => {
             const b = document.createElement('button');
             b.innerText = opt;
             b.onclick = () => check(i);
             grid.appendChild(b);
         });
+        
         startTimer();
     }
 
     function startTimer() {
-        let t = 100;
+        state.time = 100;
         clearInterval(state.timer);
-        const speed = state.mode === 'death' ? 1.5 : 0.5;
+        const speed = levels[state.level].timer / 100; 
         state.timer = setInterval(() => {
-            t -= speed;
-            document.getElementById('timer-progress').style.width = t + "%";
-            if(t <= 0) { handleWrong(); }
-        }, 100);
+            state.time -= 1;
+            document.getElementById('progress-bar').style.width = state.time + "%";
+            if(state.time < 30) {
+                document.getElementById('progress-bar').style.background = "var(--neon-red)";
+                playTick();
+            } else {
+                document.getElementById('progress-bar').style.background = "var(--neon-blue)";
+            }
+            if(state.time <= 0) {
+                playWrong();
+                nextQuestion();
+            }
+        }, levels[state.level].timer);
     }
 
-    function check(i) {
-        if(i === pool[state.current].a) {
-            sound(600, 0.2);
-            state.score += 100;
-            document.getElementById('score-val').innerText = state.score;
-            state.current++;
-            load();
+    function check(idx) {
+        clearInterval(state.timer);
+        if(idx === levels[state.level].questions[state.qIdx].a) {
+            playCorrect();
+            state.score += levels[state.level].points;
+            document.getElementById('score-disp').innerText = state.score;
         } else {
-            handleWrong();
+            playWrong();
+        }
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        state.qIdx++;
+        if(state.qIdx >= levels[state.level].questions.length) {
+            state.level++;
+            state.qIdx = 0;
+        }
+        
+        if(state.level >= levels.length) {
+            endGame();
+        } else {
+            loadQuestion();
         }
     }
 
-    function handleWrong() {
-        sound(150, 0.4, 0.2);
-        state.lives -= (state.mode === 'death' ? 100 : 34);
-        document.getElementById('health-bar').style.width = Math.max(0, state.lives) + "%";
-        if(state.lives <= 0) return end("DIAGNOSTIC FAILURE");
-        state.current++;
-        load();
-    }
-
-    function end(m) {
-        clearInterval(state.timer);
+    function endGame() {
         document.getElementById('screen-game').classList.add('hidden');
         document.getElementById('screen-end').classList.remove('hidden');
-        document.getElementById('final-msg').innerText = m;
         document.getElementById('final-score').innerText = state.score;
     }
 </script>
